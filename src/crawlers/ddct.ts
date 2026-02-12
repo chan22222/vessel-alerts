@@ -28,6 +28,7 @@ export class DdctCrawler extends BaseCrawler {
     try {
       const sessionCookie = await this.login()
       if (!sessionCookie) {
+        process.stderr.write(`[DdctCrawler] login failed - no session cookie\n`)
         return []
       }
 
@@ -46,8 +47,11 @@ export class DdctCrawler extends BaseCrawler {
         responseType: 'text',
       })
 
+      process.stderr.write(`[DdctCrawler] API response length: ${response.data.length}, first 500 chars: ${String(response.data).slice(0, 500)}\n`)
       return this.parseNexacroResponse(response.data)
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`[DdctCrawler] crawl error: ${msg}\n`)
       return []
     }
   }
@@ -97,6 +101,7 @@ export class DdctCrawler extends BaseCrawler {
         .find((c: string) => c.startsWith('JSESSIONID='))
 
       if (!jsessionId) {
+        process.stderr.write(`[DdctCrawler] no JSESSIONID in cookies\n`)
         return null
       }
 
@@ -105,8 +110,11 @@ export class DdctCrawler extends BaseCrawler {
         return jsessionId
       }
 
+      process.stderr.write(`[DdctCrawler] login response did not contain ErrorCode=0: ${xml.slice(0, 300)}\n`)
       return null
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`[DdctCrawler] login error: ${msg}\n`)
       return null
     }
   }
