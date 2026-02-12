@@ -38,6 +38,11 @@ export class UnctCrawler extends BaseCrawler {
         return []
       }
 
+      // 디버그: 첫 번째 아이템의 모든 키-값 출력
+      if (items.length > 0) {
+        process.stderr.write(`[UnctCrawler] sample keys: ${JSON.stringify(items[0])}\n`)
+      }
+
       return items.map((item) => {
         const arrived = this.formatDatetime(item.etb || '')
         const departed = this.formatDatetime(item.etd || '')
