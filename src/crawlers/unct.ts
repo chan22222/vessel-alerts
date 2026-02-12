@@ -4,7 +4,8 @@ import type { VesselRecord, StatusType } from '../types.js'
 interface UnctItem {
   cdvVslName: string
   cdvVslOperator: string
-  voyage: string
+  vsbVoyEvoyagein: string
+  vsbVoyEvoyageout: string
   etb: string
   etd: string
   cct: string
@@ -38,11 +39,6 @@ export class UnctCrawler extends BaseCrawler {
         return []
       }
 
-      // 디버그: 첫 번째 아이템의 모든 키-값 출력
-      if (items.length > 0) {
-        process.stderr.write(`[UnctCrawler] sample keys: ${JSON.stringify(items[0])}\n`)
-      }
-
       return items.map((item) => {
         const arrived = this.formatDatetime(item.etb || '')
         const departed = this.formatDatetime(item.etd || '')
@@ -52,7 +48,7 @@ export class UnctCrawler extends BaseCrawler {
         return this.makeRecord({
           vessel: item.cdvVslName || '',
           linerCode: item.cdvVslOperator || '',
-          voyage: item.voyage || '',
+          voyage: item.vsbVoyEvoyagein || item.vsbVoyEvoyageout || '',
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
