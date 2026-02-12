@@ -79,7 +79,7 @@ export class HpntCrawler extends BaseCrawler {
         const statusText = $(cells[13]).text().trim()
         const vessel = $(cells[4]).text().trim()
         const linerCode = $(cells[1]).text().trim()
-        const voyage = $(cells[2]).text().trim()
+        const voyage = $(cells[3]).text().trim()
         const arrived = this.formatDatetime($(cells[7]).text().trim())
         const departed = this.formatDatetime($(cells[8]).text().trim())
         const closing = this.formatDatetime($(cells[6]).text().trim())
