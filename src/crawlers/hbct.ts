@@ -40,7 +40,9 @@ export class HbctCrawler extends BaseCrawler {
       }
 
       return allRecords
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`[HbctCrawler] error: ${msg}\n`)
       return []
     }
   }
