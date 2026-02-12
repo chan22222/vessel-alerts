@@ -33,7 +33,9 @@ export class PncCrawler extends BaseCrawler {
       )
 
       return this.parseTable(response.data)
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`[PncCrawler] error: ${msg}\n`)
       return []
     }
   }

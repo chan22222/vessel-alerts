@@ -19,7 +19,9 @@ export class JuctCrawler extends BaseCrawler {
 
       const html = iconv.decode(Buffer.from(response.data), 'euc-kr')
       return this.parseTable(html)
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`[JuctCrawler] error: ${msg}\n`)
       return []
     }
   }
