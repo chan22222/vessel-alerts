@@ -15,9 +15,7 @@ import { IctCrawler } from './ict.js'
 import { SnctCrawler } from './snct.js'
 import { GwctCrawler } from './gwct.js'
 import { KitlCrawler } from './kitl.js'
-import { HbctCrawler } from './hbct.js'
 import { BnmtCrawler } from './bnmt.js'
-import { JuctCrawler } from './juct.js'
 import { IfpcCrawler } from './ifpc.js'
 import { PnctCrawler } from './pnct.js'
 import { BctCrawler } from './bct.js'
@@ -36,9 +34,7 @@ function createCrawlers(): BaseCrawler[] {
     new SnctCrawler(TERMINALS.SNCT),
     new GwctCrawler(TERMINALS.GWCT),
     new KitlCrawler(TERMINALS.KITL),
-    new HbctCrawler(TERMINALS.HBCT),
     new BnmtCrawler(TERMINALS.BNMT),
-    new JuctCrawler(TERMINALS.JUCT),
     new IfpcCrawler(TERMINALS.IFPC),
     new PnctCrawler(TERMINALS.PNCT),
     new BctCrawler(TERMINALS.BCT),

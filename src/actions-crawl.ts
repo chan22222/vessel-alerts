@@ -1,6 +1,6 @@
 /**
  * GitHub Actions 전용 크롤링 스크립트
- * Railway에서 IP 차단된 터미널(PNC, DDCT)만 크롤링하여 Supabase에 저장
+ * Railway에서 IP 차단된 터미널(PNC, DDCT, JUCT, HBCT)을 크롤링하여 Supabase에 저장
  */
 import { TERMINALS } from './types.js'
 import { mergeRecords, resetSeqCounter } from './store.js'
@@ -8,6 +8,8 @@ import type { VesselRecord } from './types.js'
 
 import { PncCrawler } from './crawlers/pnc.js'
 import { DdctCrawler } from './crawlers/ddct.js'
+import { JuctCrawler } from './crawlers/juct.js'
+import { HbctCrawler } from './crawlers/hbct.js'
 
 async function main(): Promise<void> {
   const startTime = Date.now()
@@ -16,6 +18,8 @@ async function main(): Promise<void> {
   const crawlers = [
     new PncCrawler(TERMINALS.PNC),
     new DdctCrawler(TERMINALS.DDCT),
+    new JuctCrawler(TERMINALS.JUCT),
+    new HbctCrawler(TERMINALS.HBCT),
   ]
 
   const results = await Promise.allSettled(
@@ -49,7 +53,7 @@ async function main(): Promise<void> {
   const totalCount = await mergeRecords(newByTerminal)
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
   const summary = Array.from(newByTerminal.entries()).map(([k, v]) => `${k}:${v.length}`).join(' ')
-  process.stdout.write(`[Actions] ${totalCount} total (${newByTerminal.size}/2 updated) (${elapsed}s) [${summary}]\n`)
+  process.stdout.write(`[Actions] ${totalCount} total (${newByTerminal.size}/${crawlers.length} updated) (${elapsed}s) [${summary}]\n`)
 }
 
 main().catch((err) => {
