@@ -27,7 +27,7 @@ async function start(): Promise<void> {
   process.stdout.write('Running initial crawl...\n')
   await runAllCrawlers()
 
-  cron.schedule('*/10 * * * *', async () => {
+  cron.schedule('*/15 * * * *', async () => {
     process.stdout.write('[Cron] Starting scheduled crawl...\n')
     await runAllCrawlers()
   })

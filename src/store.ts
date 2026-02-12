@@ -21,9 +21,13 @@ export function nextSeq(): number {
   return ++seqCounter
 }
 
+function toKST(): string {
+  return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T')
+}
+
 export function setRecords(records: VesselRecord[]): void {
   state.records = records
-  state.lastUpdated = new Date().toISOString()
+  state.lastUpdated = toKST()
 }
 
 export function getRecords(): VesselRecord[] {
@@ -119,7 +123,7 @@ export function queryRecords(params: {
     resultObject: {
       list,
       pageInfo,
-      lastUpdatedDate: state.lastUpdated ?? new Date().toISOString(),
+      lastUpdatedDate: state.lastUpdated ?? toKST(),
     },
   }
 }
