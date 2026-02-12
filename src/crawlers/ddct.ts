@@ -47,7 +47,6 @@ export class DdctCrawler extends BaseCrawler {
         responseType: 'text',
       })
 
-      process.stderr.write(`[DdctCrawler] API response length: ${response.data.length}, first 500 chars: ${String(response.data).slice(0, 500)}\n`)
       return this.parseNexacroResponse(response.data)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -149,15 +148,11 @@ export class DdctCrawler extends BaseCrawler {
 
     const errorCode = $('Parameter[id="ErrorCode"]').text().trim()
     if (errorCode !== '0') {
-      process.stderr.write(`[DdctCrawler] ErrorCode=${errorCode}, skipping\n`)
       return []
     }
 
     const records: VesselRecord[] = []
-    const rows = $('Dataset[id="output1"] Row')
-    process.stderr.write(`[DdctCrawler] found ${rows.length} rows in output1\n`)
-
-    rows.each((_i, row) => {
+    $('Dataset[id="output1"] Row').each((_i, row) => {
       const getCol = (id: string): string => {
         const col = $(row).find(`Col[id="${id}"]`)
         return col.text().trim().replace(/&#32;/g, ' ')
@@ -183,7 +178,7 @@ export class DdctCrawler extends BaseCrawler {
       if (!rowData.cdvName && !rowData.plvVslvoy) return
 
       const vesselName = rowData.cdvName || rowData.plvVslvoy
-      const voyage = rowData.plvVslvoy || ''
+      const voyage = [rowData.plvEvoyin, rowData.plvEvoyout].filter(Boolean).join('-') || ''
       const arrived = this.formatDatetime(rowData.plvAtb)
       const departed = this.formatDatetime(rowData.plvAtd)
       const closing = this.formatDatetime(rowData.cct)

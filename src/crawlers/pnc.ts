@@ -35,9 +35,7 @@ export class PncCrawler extends BaseCrawler {
         }
       )
 
-      const html = response.data
-      process.stderr.write(`[PncCrawler] response length: ${html.length}, first 500 chars: ${html.slice(0, 500)}\n`)
-      return this.parseTable(html)
+      return this.parseTable(response.data)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       process.stderr.write(`[PncCrawler] error: ${msg}\n`)
