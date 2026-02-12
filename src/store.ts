@@ -30,6 +30,36 @@ export function setRecords(records: VesselRecord[]): void {
   state.lastUpdated = toKST()
 }
 
+/** 성공한 터미널만 갱신, 실패한 터미널은 이전 데이터 유지 */
+export function mergeRecords(newByTerminal: Map<string, VesselRecord[]>): number {
+  // 기존 데이터에서 터미널별로 분리
+  const existing = new Map<string, VesselRecord[]>()
+  for (const r of state.records) {
+    if (!existing.has(r.trmnCode)) existing.set(r.trmnCode, [])
+    existing.get(r.trmnCode)!.push(r)
+  }
+
+  // 성공한 터미널은 새 데이터로 교체, 나머지는 유지
+  for (const [code, records] of newByTerminal) {
+    existing.set(code, records)
+  }
+
+  const merged: VesselRecord[] = []
+  for (const records of existing.values()) {
+    merged.push(...records)
+  }
+
+  merged.sort((a, b) => {
+    const dateA = a.arrivedDatetime || '9999'
+    const dateB = b.arrivedDatetime || '9999'
+    return dateA.localeCompare(dateB)
+  })
+
+  state.records = merged
+  state.lastUpdated = toKST()
+  return merged.length
+}
+
 export function getRecords(): VesselRecord[] {
   return state.records
 }

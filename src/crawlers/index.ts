@@ -1,6 +1,6 @@
 import type { VesselRecord } from '../types.js'
 import { TERMINALS } from '../types.js'
-import { setRecords, resetSeqCounter } from '../store.js'
+import { mergeRecords, resetSeqCounter } from '../store.js'
 import { BaseCrawler } from './base.js'
 
 import { BnctCrawler } from './bnct.js'
@@ -71,27 +71,25 @@ export async function runAllCrawlers(): Promise<void> {
     })
   )
 
-  const allRecords: VesselRecord[] = []
+  const newRecordsByTerminal = new Map<string, VesselRecord[]>()
   const countsByTerminal: Record<string, number> = {}
+  const failedTerminals: string[] = []
+
   for (const result of results) {
     if (result.status === 'fulfilled' && result.value.length > 0) {
-      allRecords.push(...result.value)
       const code = result.value[0]?.trmnCode || 'unknown'
+      newRecordsByTerminal.set(code, result.value)
       countsByTerminal[code] = result.value.length
+    } else if (result.status === 'fulfilled' && result.value.length === 0) {
+      // 크롤링은 됐지만 0건 → 실패 터미널로 간주하여 이전 데이터 유지
     }
   }
 
-  allRecords.sort((a, b) => {
-    const dateA = a.arrivedDatetime || '9999'
-    const dateB = b.arrivedDatetime || '9999'
-    return dateA.localeCompare(dateB)
-  })
-
-  setRecords(allRecords)
+  const totalCount = mergeRecords(newRecordsByTerminal)
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
   const terminalSummary = Object.entries(countsByTerminal).map(([k,v]) => `${k}:${v}`).join(' ')
   const successCount = Object.keys(countsByTerminal).length
-  const msg = `[Crawler] ${allRecords.length} records from ${successCount}/${crawlers.length} terminals (${elapsed}s) [${terminalSummary}]\n`
+  const msg = `[Crawler] ${totalCount} records (${successCount}/${crawlers.length} updated) (${elapsed}s) [${terminalSummary}]\n`
   process.stdout.write(msg)
 }
