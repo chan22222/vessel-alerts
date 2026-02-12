@@ -143,16 +143,21 @@ export class DdctCrawler extends BaseCrawler {
   }
 
   private parseNexacroResponse(xml: string): VesselRecord[] {
-    const $ = cheerio.load(xml, { xml: true })
+    // cheerio XML 파서가 네임스페이스 때문에 셀렉터 매칭 실패할 수 있으므로 제거
+    const cleanXml = xml.replace(/\s+xmlns="[^"]*"/g, '')
+    const $ = cheerio.load(cleanXml, { xml: true })
 
     const errorCode = $('Parameter[id="ErrorCode"]').text().trim()
     if (errorCode !== '0') {
+      process.stderr.write(`[DdctCrawler] ErrorCode=${errorCode}, skipping\n`)
       return []
     }
 
     const records: VesselRecord[] = []
+    const rows = $('Dataset[id="output1"] Row')
+    process.stderr.write(`[DdctCrawler] found ${rows.length} rows in output1\n`)
 
-    $('Dataset[id="output1"] Row').each((_i, row) => {
+    rows.each((_i, row) => {
       const getCol = (id: string): string => {
         const col = $(row).find(`Col[id="${id}"]`)
         return col.text().trim().replace(/&#32;/g, ' ')
