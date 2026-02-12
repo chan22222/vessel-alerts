@@ -8,17 +8,29 @@ export class JuctCrawler extends BaseCrawler {
 
   async crawl(): Promise<VesselRecord[]> {
     try {
-      const response = await this.http.get(this.url, {
+      const { startDate, endDate } = this.getDateRange()
+      const [fromY, fromM, fromD] = startDate.split('-')
+      const [toY, toM, toD] = endDate.split('-')
+
+      const params = new URLSearchParams({
+        fromS: `${fromY}${fromM}${fromD}00`,
+        toS: `${toY}${toM}${toD}16`,
+        fromY, fromM, fromD, fromH: '00',
+        toY, toM, toD, toH: '16',
+      })
+
+      const response = await this.http.post(this.url, params.toString(), {
         headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
           'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          Referer: 'https://www.juct.co.kr/Service/01.asp?ui=4',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+          Referer: 'https://www.juct.co.kr/web/NEW/schedule/index.asp',
+          Origin: 'https://www.juct.co.kr',
         },
         responseType: 'arraybuffer',
       })
 
       const html = iconv.decode(Buffer.from(response.data), 'euc-kr')
-      process.stderr.write(`[JuctCrawler] response length: ${html.length}, first 500 chars: ${html.slice(0, 500)}\n`)
       return this.parseTable(html)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
