@@ -53,12 +53,12 @@ export class HbctCrawler extends BaseCrawler {
       const cells = $(row).find('td.font8')
       if (cells.length < 14) return
 
-      const voyage = $(cells[0]).text().trim()
-      const linerCode = $(cells[11]).text().trim()
-      const vessel = $(cells[10]).text().trim()
+      const voyage = $(cells[1]).text().trim()
+      const vessel = $(cells[11]).text().trim()
+      const linerCode = $(cells[12]).text().trim()
       const arrived = this.formatDatetime($(cells[4]).text().trim())
-      const departed = this.formatDatetime($(cells[5]).text().trim())
-      const closing = this.formatDatetime($(cells[6]).text().trim())
+      const departed = this.formatDatetime($(cells[6]).text().trim())
+      const closing = this.formatDatetime($(cells[7]).text().trim())
 
       if (!vessel) return
 
