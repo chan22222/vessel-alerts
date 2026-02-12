@@ -27,8 +27,11 @@ export class HbctCrawler extends BaseCrawler {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             Referer: this.url,
+            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
           },
           responseType: 'arraybuffer',
+          timeout: 60000,
         })
 
         const html = iconv.decode(Buffer.from(response.data), 'euc-kr')

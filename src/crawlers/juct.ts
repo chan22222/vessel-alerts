@@ -20,6 +20,7 @@ export class JuctCrawler extends BaseCrawler {
           Referer: 'https://www.juct.co.kr/Service/01.asp?ui=4',
         },
         responseType: 'arraybuffer',
+        timeout: 60000,
       })
 
       const html = iconv.decode(Buffer.from(response.data), 'euc-kr')
