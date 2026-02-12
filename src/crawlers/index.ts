@@ -85,7 +85,7 @@ export async function runAllCrawlers(): Promise<void> {
     }
   }
 
-  const totalCount = mergeRecords(newRecordsByTerminal)
+  const totalCount = await mergeRecords(newRecordsByTerminal)
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
   const terminalSummary = Object.entries(countsByTerminal).map(([k,v]) => `${k}:${v}`).join(' ')
