@@ -28,6 +28,7 @@ export abstract class BaseCrawler {
     linerCode: string
     vessel: string
     voyage: string
+    motherVoyage?: string
     arrivedDatetime: string
     departedDatetime: string
     closingDatetime: string
@@ -42,6 +43,7 @@ export abstract class BaseCrawler {
       linerCode: data.linerCode || '-',
       vessel: data.vessel || '-',
       voyage: data.voyage || '-',
+      motherVoyage: data.motherVoyage || '',
       arrivedDatetime: data.arrivedDatetime || '',
       departedDatetime: data.departedDatetime || '',
       closingDatetime: data.closingDatetime || '',

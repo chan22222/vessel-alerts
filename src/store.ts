@@ -48,6 +48,7 @@ export async function mergeRecords(newByTerminal: Map<string, VesselRecord[]>): 
       liner_code: r.linerCode,
       vessel: r.vessel,
       voyage: r.voyage,
+      mother_voyage: r.motherVoyage,
       arrived_datetime: r.arrivedDatetime,
       departed_datetime: r.departedDatetime,
       closing_datetime: r.closingDatetime,

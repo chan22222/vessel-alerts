@@ -94,6 +94,7 @@ export class PnitCrawler extends BaseCrawler {
         const statusText = $(cells[14]).text().trim()
         const vessel = $(cells[5]).text().trim()
         const linerCode = $(cells[1]).text().trim()
+        const motherVoyage = $(cells[2]).text().trim()
         const voyage = $(cells[3]).text().trim()
         const arrived = this.formatDatetime($(cells[8]).text().trim())
         const departed = this.formatDatetime($(cells[9]).text().trim())
@@ -106,6 +107,7 @@ export class PnitCrawler extends BaseCrawler {
             vessel,
             linerCode,
             voyage,
+            motherVoyage,
             arrivedDatetime: arrived,
             departedDatetime: departed,
             closingDatetime: closing,

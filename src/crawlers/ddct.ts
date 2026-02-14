@@ -178,7 +178,8 @@ export class DdctCrawler extends BaseCrawler {
       if (!rowData.cdvName && !rowData.plvVslvoy) return
 
       const vesselName = rowData.cdvName || rowData.plvVslvoy
-      const voyage = [rowData.plvEvoyin, rowData.plvEvoyout].filter(Boolean).join('-') || ''
+      const motherVoyage = rowData.plvEvoyin || ''
+      const voyage = rowData.plvEvoyout || rowData.plvEvoyin || ''
       const arrived = this.formatDatetime(rowData.plvAtb)
       const departed = this.formatDatetime(rowData.plvAtd)
       const closing = this.formatDatetime(rowData.cct)
@@ -189,6 +190,7 @@ export class DdctCrawler extends BaseCrawler {
           vessel: vesselName,
           linerCode: rowData.cdvOperator || '-',
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

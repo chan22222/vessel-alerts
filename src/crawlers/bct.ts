@@ -164,12 +164,14 @@ export class BctCrawler extends BaseCrawler {
       const closing = this.formatDatetime(vessel.cct)
 
       const voyageDisplay = vessel.plvVslvoy || `${vessel.plvVsl}${vessel.plvVoy}`
+      const motherVoyage = vessel.plvEvoyin || ''
 
       records.push(
         this.makeRecord({
           vessel: vessel.cdvName,
           linerCode: vessel.cdvOperator,
           voyage: voyageDisplay,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

@@ -9,6 +9,7 @@ export interface VesselRecord {
   linerCode: string
   vessel: string
   voyage: string
+  motherVoyage: string
   arrivedDatetime: string
   departedDatetime: string
   closingDatetime: string

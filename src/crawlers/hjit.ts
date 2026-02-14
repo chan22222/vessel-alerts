@@ -51,6 +51,7 @@ export class HjitCrawler extends BaseCrawler {
       const voyage = firstCell.text().trim()
       const vessel = $(cells[1]).text().trim()
       const linerCode = $(cells[2]).text().trim()
+      const motherVoyage = $(cells[3]).text().trim()
       const closing = this.formatDatetime($(cells[5]).text().trim())
       const arrived = this.formatDatetime($(cells[6]).text().trim())
       const departed = this.formatDatetime($(cells[7]).text().trim())
@@ -65,6 +66,7 @@ export class HjitCrawler extends BaseCrawler {
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

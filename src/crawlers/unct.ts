@@ -48,7 +48,8 @@ export class UnctCrawler extends BaseCrawler {
         return this.makeRecord({
           vessel: item.cdvVslName || '',
           linerCode: item.cdvVslOperator || '',
-          voyage: [item.vsbVoyEvoyagein, item.vsbVoyEvoyageout].filter(Boolean).join('-') || '',
+          voyage: item.vsbVoyEvoyageout || item.vsbVoyEvoyagein || '',
+          motherVoyage: item.vsbVoyEvoyagein || '',
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

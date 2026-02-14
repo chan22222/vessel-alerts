@@ -32,7 +32,8 @@ export class KitlCrawler extends BaseCrawler {
 
       const vessel = $(cells[10]).text().trim()
       const linerCode = $(cells[11]).text().trim()
-      const voyage = $(cells[0]).text().trim()
+      const motherVoyage = $(cells[0]).text().trim()
+      const voyage = $(cells[1]).text().trim() || motherVoyage
       const arrived = this.formatDatetime($(cells[4]).text().trim())
       const departed = this.formatDatetime($(cells[5]).text().trim())
       const closing = this.formatDatetime($(cells[6]).text().trim())
@@ -47,6 +48,7 @@ export class KitlCrawler extends BaseCrawler {
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

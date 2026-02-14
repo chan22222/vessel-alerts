@@ -46,6 +46,7 @@ export class PnctCrawler extends BaseCrawler {
           vessel: row.VSL_NAME || '',
           linerCode: row.OPERATOR || '',
           voyage: (row.OPR_VVD || row.VVD || '').trim(),
+          motherVoyage: (row.VVD || '').trim(),
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

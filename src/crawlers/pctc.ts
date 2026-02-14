@@ -77,6 +77,7 @@ export class PctcCrawler extends BaseCrawler {
           vessel: item.VSL_NM || '',
           linerCode: item.PTNR_CODE || '',
           voyage: item.OPR_VOY || item.VOY_NO || '',
+          motherVoyage: item.VOY_NO || '',
           arrivedDatetime: this.formatDatetime(item.ATA || ''),
           departedDatetime: this.formatDatetime(item.ATD || ''),
           closingDatetime: this.formatDatetime(item.YARD_CLOSE || ''),

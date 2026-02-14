@@ -88,6 +88,7 @@ export class HjncCrawler extends BaseCrawler {
           vessel: item.VSL_NM || '',
           linerCode: item.PTNR_CODE || '',
           voyage: item.OPR_VOY || item.VOY_NO || '',
+          motherVoyage: item.VOY_NO || '',
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
