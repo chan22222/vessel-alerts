@@ -5,6 +5,8 @@ interface BnctItem {
   VSLNAME: string
   OPERATOR: string
   VVD: string
+  OPERVSLVVDIN: string
+  OPERVSLVVDOUT: string
   ETBDATE: string
   ETDDATE: string
   ATBDATE: string
@@ -69,10 +71,19 @@ export class BnctCrawler extends BaseCrawler {
         const status = this.resolveStatus(item)
         const arrived = item.ATBDATE || item.ETBDATE || ''
         const departed = item.ATDDATE || item.ETDDATE || ''
+
+        const motherVoyage = item.VVD || ''
+        const inVoy = item.OPERVSLVVDIN || ''
+        const outVoy = item.OPERVSLVVDOUT || ''
+        const voyage = inVoy && outVoy && inVoy !== outVoy
+          ? `${inVoy}/${outVoy}`
+          : inVoy || outVoy || ''
+
         return this.makeRecord({
           vessel: item.VSLNAME || '',
           linerCode: item.OPERATOR || '',
-          voyage: item.VVD || '',
+          voyage: voyage || motherVoyage,
+          motherVoyage,
           arrivedDatetime: this.formatDatetime(arrived),
           departedDatetime: this.formatDatetime(departed),
           closingDatetime: this.formatDatetime(item.CUTOFFDATE || ''),
