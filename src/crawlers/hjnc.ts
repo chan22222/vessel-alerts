@@ -7,6 +7,7 @@ interface HjncRawItem {
   VSL_NM: string
   PTNR_CODE: string
   VOY_NO: string
+  OPR_VOY: string
   ATA: string
   ATD: string
   YARD_CLOSE: string
@@ -86,7 +87,7 @@ export class HjncCrawler extends BaseCrawler {
         return this.makeRecord({
           vessel: item.VSL_NM || '',
           linerCode: item.PTNR_CODE || '',
-          voyage: item.VOY_NO || '',
+          voyage: item.OPR_VOY || item.VOY_NO || '',
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
