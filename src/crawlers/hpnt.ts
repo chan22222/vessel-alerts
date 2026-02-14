@@ -20,36 +20,35 @@ export class HpntCrawler extends BaseCrawler {
 
       const cookies = this.extractCookies(pageResp.headers['set-cookie'])
 
-      const maxPages = 10
-      const allRecords: VesselRecord[] = []
+      const params = new URLSearchParams({
+        isSearch: 'Y',
+        page: '1',
+        strdStDate: startDate,
+        strdEdDate: endDate,
+        route: '',
+        tmnCod: 'H',
+        CSRF_TOKEN: csrfToken,
+      })
 
-      for (let page = 1; page <= maxPages; page++) {
-        const params = new URLSearchParams({
-          isSearch: 'Y',
-          page: String(page),
-          strdStDate: startDate,
-          strdEdDate: endDate,
-          route: '',
-          tmnCod: 'H',
-          CSRF_TOKEN: csrfToken,
-        })
+      const dataResp = await this.http.post<string>(this.url, params.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Cookie: cookies,
+          Referer: this.url,
+        },
+        responseType: 'text',
+      })
 
-        const dataResp = await this.http.post<string>(this.url, params.toString(), {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Cookie: cookies,
-            Referer: this.url,
-          },
-          responseType: 'text',
-        })
+      const records = this.parseTable(dataResp.data)
 
-        const pageRecords = this.parseTable(dataResp.data)
-        if (pageRecords.length === 0) break
-
-        allRecords.push(...pageRecords)
-      }
-
-      return allRecords
+      // 중복 제거 (vessel + voyage + arrived 기준)
+      const seen = new Set<string>()
+      return records.filter((r) => {
+        const key = `${r.vessel}|${r.voyage}|${r.arrivedDatetime}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
     } catch {
       return []
     }
