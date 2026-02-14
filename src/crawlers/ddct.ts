@@ -56,66 +56,71 @@ export class DdctCrawler extends BaseCrawler {
   }
 
   private async login(): Promise<string | null> {
-    try {
-      const loginXml = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<Root xmlns="http://www.nexacroplatform.com/platform/dataset">',
-        '<Dataset id="ds_cond">',
-        '<ColumnInfo>',
-        '<Column id="id" type="STRING" size="256"/>',
-        '<Column id="pw" type="STRING" size="256"/>',
-        '<Column id="locale" type="STRING" size="256"/>',
-        '<Column id="autoLogin" type="STRING" size="256"/>',
-        '</ColumnInfo>',
-        '<Rows><Row>',
-        '<Col id="id">guest</Col>',
-        '<Col id="pw">guest</Col>',
-        '<Col id="locale">ko</Col>',
-        '<Col id="autoLogin">N</Col>',
-        '</Row></Rows>',
-        '</Dataset>',
-        '</Root>',
-      ].join('')
+    const loginXml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<Root xmlns="http://www.nexacroplatform.com/platform/dataset">',
+      '<Dataset id="ds_cond">',
+      '<ColumnInfo>',
+      '<Column id="id" type="STRING" size="256"/>',
+      '<Column id="pw" type="STRING" size="256"/>',
+      '<Column id="locale" type="STRING" size="256"/>',
+      '<Column id="autoLogin" type="STRING" size="256"/>',
+      '</ColumnInfo>',
+      '<Rows><Row>',
+      '<Col id="id">guest</Col>',
+      '<Col id="pw">guest</Col>',
+      '<Col id="locale">ko</Col>',
+      '<Col id="autoLogin">N</Col>',
+      '</Row></Rows>',
+      '</Dataset>',
+      '</Root>',
+    ].join('')
 
-      const response = await this.http.post(this.loginUrl, loginXml, {
-        headers: {
-          'Content-Type': 'text/xml; charset=UTF-8',
-        },
-        responseType: 'text',
-        maxRedirects: 0,
-        validateStatus: (status: number) => status < 400,
-      })
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const response = await this.http.post(this.loginUrl, loginXml, {
+          headers: {
+            'Content-Type': 'text/xml; charset=UTF-8',
+          },
+          responseType: 'text',
+          maxRedirects: 0,
+          validateStatus: (status: number) => status < 400,
+        })
 
-      const setCookieHeader = response.headers['set-cookie']
-      if (!setCookieHeader) {
+        const setCookieHeader = response.headers['set-cookie']
+        if (!setCookieHeader) {
+          return null
+        }
+
+        const cookies = Array.isArray(setCookieHeader)
+          ? setCookieHeader
+          : [setCookieHeader]
+
+        const jsessionId = cookies
+          .map((c: string) => c.split(';')[0])
+          .find((c: string) => c.startsWith('JSESSIONID='))
+
+        if (!jsessionId) {
+          process.stderr.write(`[DdctCrawler] no JSESSIONID in cookies\n`)
+          return null
+        }
+
+        const xml = typeof response.data === 'string' ? response.data : ''
+        if (xml.includes('ErrorCode" type="int">0</') || xml.includes('ErrorCode" type="string">0</')) {
+          return jsessionId
+        }
+
+        process.stderr.write(`[DdctCrawler] login response did not contain ErrorCode=0: ${xml.slice(0, 300)}\n`)
         return null
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        process.stderr.write(`[DdctCrawler] login error (attempt ${attempt + 1}/3): ${msg}\n`)
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 3000 * (attempt + 1)))
+        }
       }
-
-      const cookies = Array.isArray(setCookieHeader)
-        ? setCookieHeader
-        : [setCookieHeader]
-
-      const jsessionId = cookies
-        .map((c: string) => c.split(';')[0])
-        .find((c: string) => c.startsWith('JSESSIONID='))
-
-      if (!jsessionId) {
-        process.stderr.write(`[DdctCrawler] no JSESSIONID in cookies\n`)
-        return null
-      }
-
-      const xml = typeof response.data === 'string' ? response.data : ''
-      if (xml.includes('ErrorCode" type="int">0</') || xml.includes('ErrorCode" type="string">0</')) {
-        return jsessionId
-      }
-
-      process.stderr.write(`[DdctCrawler] login response did not contain ErrorCode=0: ${xml.slice(0, 300)}\n`)
-      return null
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      process.stderr.write(`[DdctCrawler] login error: ${msg}\n`)
-      return null
     }
+    return null
   }
 
   private buildScheduleRequestXml(startDate: string, endDate: string): string {
