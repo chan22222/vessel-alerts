@@ -5,6 +5,7 @@ import type { VesselRecord, StatusType } from '../types.js'
 
 export class HbctCrawler extends BaseCrawler {
   private readonly url = 'https://custom.hktl.com/jsp/T01/sunsuk.jsp'
+  private readonly proxyBase = 'https://pr.refra2n-511.workers.dev/?url='
 
   private static readonly MAX_PAGES = 10
 
@@ -23,7 +24,9 @@ export class HbctCrawler extends BaseCrawler {
           startPage: String(page),
         })
 
-        const response = await this.http.post(this.url, params.toString(), {
+        const targetUrl = this.proxyBase + encodeURIComponent(this.url)
+
+        const response = await this.http.post(targetUrl, params.toString(), {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             Referer: this.url,
