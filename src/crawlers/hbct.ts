@@ -46,9 +46,16 @@ export class HbctCrawler extends BaseCrawler {
       }
 
       return allRecords
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
+    } catch (err: unknown) {
+      const axiosErr = err as { message?: string; response?: { status?: number; data?: unknown } }
+      const msg = axiosErr.message ?? String(err)
       process.stderr.write(`[HbctCrawler] error: ${msg}\n`)
+      if (axiosErr.response?.data) {
+        const body = axiosErr.response.data instanceof ArrayBuffer
+          ? Buffer.from(axiosErr.response.data).toString('utf-8').substring(0, 500)
+          : String(axiosErr.response.data).substring(0, 500)
+        process.stderr.write(`[HbctCrawler] response body: ${body}\n`)
+      }
       return []
     }
   }
