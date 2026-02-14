@@ -5,7 +5,6 @@ import type { VesselRecord, StatusType } from '../types.js'
 
 export class HbctCrawler extends BaseCrawler {
   private readonly url = 'https://custom.hktl.com/jsp/T01/sunsuk.jsp'
-  private readonly proxyBase = 'https://pr.refra2n-511.workers.dev/?url='
 
   private static readonly MAX_PAGES = 10
 
@@ -24,9 +23,7 @@ export class HbctCrawler extends BaseCrawler {
           startPage: String(page),
         })
 
-        const targetUrl = this.proxyBase + encodeURIComponent(this.url)
-
-        const response = await this.http.post(targetUrl, params.toString(), {
+        const response = await this.http.post(this.url, params.toString(), {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             Referer: this.url,
@@ -46,16 +43,9 @@ export class HbctCrawler extends BaseCrawler {
       }
 
       return allRecords
-    } catch (err: unknown) {
-      const axiosErr = err as { message?: string; response?: { status?: number; data?: unknown } }
-      const msg = axiosErr.message ?? String(err)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
       process.stderr.write(`[HbctCrawler] error: ${msg}\n`)
-      if (axiosErr.response?.data) {
-        const body = axiosErr.response.data instanceof ArrayBuffer
-          ? Buffer.from(axiosErr.response.data).toString('utf-8').substring(0, 500)
-          : String(axiosErr.response.data).substring(0, 500)
-        process.stderr.write(`[HbctCrawler] response body: ${body}\n`)
-      }
       return []
     }
   }

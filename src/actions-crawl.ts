@@ -7,7 +7,6 @@ import { mergeRecords, resetSeqCounter } from './store.js'
 import type { VesselRecord } from './types.js'
 
 import { PncCrawler } from './crawlers/pnc.js'
-import { HbctCrawler } from './crawlers/hbct.js'
 
 async function main(): Promise<void> {
   const startTime = Date.now()
@@ -15,7 +14,6 @@ async function main(): Promise<void> {
 
   const crawlers = [
     new PncCrawler(TERMINALS.PNC),
-    new HbctCrawler(TERMINALS.HBCT),
   ]
 
   const results = await Promise.allSettled(
