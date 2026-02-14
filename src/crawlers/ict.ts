@@ -64,7 +64,10 @@ export class IctCrawler extends BaseCrawler {
       if (IctCrawler.INVALID_KEYWORDS.test(vessel)) return
       if (IctCrawler.INVALID_KEYWORDS.test(linerCode)) return
 
-      const voyage = rawVoyage.split('\n')[0].trim()
+      const voyLines = rawVoyage.split('\n').map(l => l.trim())
+      const motherVoyage = voyLines[0] || ''
+      const subVoyage = (voyLines[1] || '').replace(/[()]/g, '').trim()
+      const voyage = subVoyage || motherVoyage
 
       const statusType = this.resolveStatus(statusText, arrived, departed)
 
@@ -73,6 +76,7 @@ export class IctCrawler extends BaseCrawler {
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

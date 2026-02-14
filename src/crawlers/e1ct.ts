@@ -56,10 +56,14 @@ export class E1ctCrawler extends BaseCrawler {
 
       const vessel = $(cells[4]).text().trim()
       const linerCode = $(cells[8]).text().trim()
-      const voyage = $(cells[2]).text().trim()
+      const rawVoyage = $(cells[2]).text().trim()
       const arrived = this.formatDatetime($(cells[5]).text().trim())
       const departed = this.formatDatetime($(cells[7]).text().trim())
       const closing = this.formatDatetime($(cells[6]).text().trim())
+
+      const voyMatch = rawVoyage.match(/^([A-Z]{4}-?\s*\d{3})\s*(.*)$/)
+      const motherVoyage = voyMatch ? voyMatch[1].replace(/\s+/g, '') : ''
+      const voyage = voyMatch && voyMatch[2] ? voyMatch[2].trim() : rawVoyage
 
       const bgColor = $(row).attr('bgcolor') || $(row).attr('style') || ''
       const statusType = this.resolveStatus(bgColor, arrived, departed)
@@ -69,6 +73,7 @@ export class E1ctCrawler extends BaseCrawler {
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

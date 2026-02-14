@@ -27,7 +27,9 @@ export class GwctCrawler extends BaseCrawler {
 
       const vessel = $(cells[3]).text().trim()
       const linerCode = $(cells[6]).text().trim()
-      const voyage = $(cells[2]).text().trim()
+      const motherVoyage = $(cells[2]).text().trim()
+      const detailVoyage = $(cells[4]).text().trim().replace(/\s+/g, '')
+      const voyage = detailVoyage || motherVoyage
       const arrived = this.formatDatetime($(cells[7]).text().trim())
       const departed = this.formatDatetime($(cells[8]).text().trim())
       const closing = this.formatDatetime($(cells[11]).text().trim())
@@ -39,6 +41,7 @@ export class GwctCrawler extends BaseCrawler {
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

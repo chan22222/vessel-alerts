@@ -48,10 +48,14 @@ export class HjitCrawler extends BaseCrawler {
       const firstCell = $(cells[0])
       if (!firstCell.hasClass('ta2')) return
 
-      const voyage = firstCell.text().trim()
+      const motherVoyage = firstCell.text().trim()
       const vessel = $(cells[1]).text().trim()
       const linerCode = $(cells[2]).text().trim()
-      const motherVoyage = $(cells[3]).text().trim()
+      const inVoy = $(cells[3]).text().trim()
+      const outVoy = $(cells[4]).text().trim()
+      const voyage = inVoy && outVoy && inVoy !== outVoy
+        ? `${inVoy}/${outVoy}`
+        : outVoy || inVoy || ''
       const closing = this.formatDatetime($(cells[5]).text().trim())
       const arrived = this.formatDatetime($(cells[6]).text().trim())
       const departed = this.formatDatetime($(cells[7]).text().trim())

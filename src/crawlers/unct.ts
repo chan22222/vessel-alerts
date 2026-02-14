@@ -4,8 +4,10 @@ import type { VesselRecord, StatusType } from '../types.js'
 interface UnctItem {
   cdvVslName: string
   cdvVslOperator: string
-  vsbVoyEvoyagein: string
-  vsbVoyEvoyageout: string
+  vsbVoyEvoyagein?: string
+  vsbVoyEvoyageout?: string
+  voyage?: string
+  vsbVoy?: string
   etb: string
   etd: string
   cct: string
@@ -45,11 +47,16 @@ export class UnctCrawler extends BaseCrawler {
         const closing = this.formatDatetime(item.cct || '')
         const status = this.resolveStatus(item.vsbVoyStatus, arrived, departed)
 
+        const evoyIn = item.vsbVoyEvoyagein || ''
+        const evoyOut = item.vsbVoyEvoyageout || ''
+        const motherVoyage = evoyIn || item.vsbVoy || ''
+        const voyage = evoyOut || evoyIn || ''
+
         return this.makeRecord({
           vessel: item.cdvVslName || '',
           linerCode: item.cdvVslOperator || '',
-          voyage: item.vsbVoyEvoyageout || item.vsbVoyEvoyagein || '',
-          motherVoyage: item.vsbVoyEvoyagein || '',
+          voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

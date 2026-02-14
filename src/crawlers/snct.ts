@@ -47,7 +47,7 @@ export class SnctCrawler extends BaseCrawler {
       const cells = $(row).find('td')
       if (cells.length < 14) return
 
-      const voyage = $(cells[2]).text().trim()
+      const rawVoyage = $(cells[2]).text().trim()
       const vessel = $(cells[5]).text().trim()
       const arrived = this.formatDatetime($(cells[6]).text().trim())
       const closing = this.formatDatetime($(cells[8]).text().trim())
@@ -56,11 +56,16 @@ export class SnctCrawler extends BaseCrawler {
 
       if (!vessel) return
 
+      const voyMatch = rawVoyage.match(/^([A-Z]{4}-?\s*\d{3})\s*(.*)$/)
+      const motherVoyage = voyMatch ? voyMatch[1].replace(/\s+/g, '') : ''
+      const voyage = voyMatch && voyMatch[2] ? voyMatch[2].trim() : rawVoyage
+
       records.push(
         this.makeRecord({
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
