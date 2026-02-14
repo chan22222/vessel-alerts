@@ -1,22 +1,19 @@
 /**
  * GitHub Actions 전용 크롤링 스크립트
- * Railway에서 IP 차단된 터미널(PNC, DDCT, JUCT, HBCT)을 크롤링하여 Supabase에 저장
+ * Railway에서 IP 차단된 터미널을 크롤링하여 Supabase에 저장
  */
 import { TERMINALS } from './types.js'
 import { mergeRecords, resetSeqCounter } from './store.js'
 import type { VesselRecord } from './types.js'
 
 import { PncCrawler } from './crawlers/pnc.js'
-import { DdctCrawler } from './crawlers/ddct.js'
-import { JuctCrawler } from './crawlers/juct.js'
+
 async function main(): Promise<void> {
   const startTime = Date.now()
   resetSeqCounter()
 
   const crawlers = [
     new PncCrawler(TERMINALS.PNC),
-    new DdctCrawler(TERMINALS.DDCT),
-    new JuctCrawler(TERMINALS.JUCT),
   ]
 
   const results = await Promise.allSettled(
