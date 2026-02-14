@@ -19,6 +19,7 @@ import { BnmtCrawler } from './bnmt.js'
 import { IfpcCrawler } from './ifpc.js'
 import { PnctCrawler } from './pnct.js'
 import { BctCrawler } from './bct.js'
+import { HbctCrawler } from './hbct.js'
 
 function createCrawlers(): BaseCrawler[] {
   return [
@@ -38,6 +39,7 @@ function createCrawlers(): BaseCrawler[] {
     new IfpcCrawler(TERMINALS.IFPC),
     new PnctCrawler(TERMINALS.PNCT),
     new BctCrawler(TERMINALS.BCT),
+    new HbctCrawler(TERMINALS.HBCT),
   ]
 }
 
