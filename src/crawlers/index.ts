@@ -8,7 +8,6 @@ import { HjncCrawler } from './hjnc.js'
 import { PctcCrawler } from './pctc.js'
 import { UnctCrawler } from './unct.js'
 import { HpntCrawler } from './hpnt.js'
-import { PnitCrawler } from './pnit.js'
 import { E1ctCrawler } from './e1ct.js'
 import { HjitCrawler } from './hjit.js'
 import { IctCrawler } from './ict.js'
@@ -20,7 +19,6 @@ import { IfpcCrawler } from './ifpc.js'
 import { PnctCrawler } from './pnct.js'
 import { BctCrawler } from './bct.js'
 import { DdctCrawler } from './ddct.js'
-import { JuctCrawler } from './juct.js'
 
 function createCrawlers(): BaseCrawler[] {
   return [
@@ -29,7 +27,6 @@ function createCrawlers(): BaseCrawler[] {
     new PctcCrawler(TERMINALS.PCTC),
     new UnctCrawler(TERMINALS.UNCT),
     new HpntCrawler(TERMINALS.HPNT),
-    new PnitCrawler(TERMINALS.PNIT),
     new E1ctCrawler(TERMINALS.E1CT),
     new HjitCrawler(TERMINALS.HJIT),
     new IctCrawler(TERMINALS.ICT),
@@ -41,7 +38,6 @@ function createCrawlers(): BaseCrawler[] {
     new PnctCrawler(TERMINALS.PNCT),
     new BctCrawler(TERMINALS.BCT),
     new DdctCrawler(TERMINALS.DDCT),
-    new JuctCrawler(TERMINALS.JUCT),
   ]
 }
 
