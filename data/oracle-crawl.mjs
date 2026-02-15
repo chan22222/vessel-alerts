@@ -373,9 +373,9 @@ async function crawlDdct() {
 
 // ========== MAIN ==========
 const TERMINALS = {
-  HBCT: { code: 'HBCT', name: '허치슨 감만(HBCT)', url: 'https://custom.hktl.com', crawl: crawlHbct },
+  HBCT: { code: 'HBCT', name: '허치슨터미널(HBCT)', url: 'https://custom.hktl.com', crawl: crawlHbct },
   JUCT: { code: 'JUCT', name: '정일울산(JUCT)', url: 'https://www.juct.co.kr', crawl: crawlJuct },
-  PNIT: { code: 'PNIT', name: 'PNIT(부산신항)', url: 'https://www.pnitl.com', crawl: crawlPnit },
+  PNIT: { code: 'PNIT', name: '부산신항국제(PNIT)', url: 'https://www.pnitl.com', crawl: crawlPnit },
   DDCT: { code: 'DDCT', name: '동방대산(DDCT)', url: 'https://ds.dongbang.co.kr', crawl: crawlDdct },
 };
 
