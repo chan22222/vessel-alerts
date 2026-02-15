@@ -398,8 +398,25 @@ async function main() {
     return;
   }
 
-  // Supabase 저장
+  // Supabase 저장 (freshness guard: 5분 이내 업데이트된 터미널은 skip)
+  const FRESHNESS_MS = 5 * 60 * 1000;
   for (const [key, { terminal, records }] of results) {
+    const { data: latest } = await supabase
+      .from('vessel_records')
+      .select('updated_at')
+      .eq('trmn_code', terminal.code)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (latest?.updated_at) {
+      const lastUpdate = new Date(latest.updated_at).getTime();
+      if (Date.now() - lastUpdate < FRESHNESS_MS) {
+        process.stdout.write(`[${key}] skipped (recently updated)\n`);
+        continue;
+      }
+    }
+
     const { error: delErr } = await supabase
       .from('vessel_records').delete().eq('trmn_code', terminal.code);
     if (delErr) {
