@@ -4,6 +4,7 @@ import { mergeRecords, resetSeqCounter } from '../store.js'
 import { BaseCrawler } from './base.js'
 
 import { BnctCrawler } from './bnct.js'
+import { BptgCrawler, BptsCrawler } from './bptc.js'
 import { HjncCrawler } from './hjnc.js'
 import { PctcCrawler } from './pctc.js'
 import { UnctCrawler } from './unct.js'
@@ -23,6 +24,8 @@ import { DdctCrawler } from './ddct.js'
 function createCrawlers(): BaseCrawler[] {
   return [
     new BnctCrawler(TERMINALS.BNCT),
+    new BptgCrawler(TERMINALS.BPTG),
+    new BptsCrawler(TERMINALS.BPTS),
     new HjncCrawler(TERMINALS.HJNC),
     new PctcCrawler(TERMINALS.PCTC),
     new UnctCrawler(TERMINALS.UNCT),
