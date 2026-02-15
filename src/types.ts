@@ -47,7 +47,6 @@ export interface TerminalInfo {
 export const TERMINALS: Record<string, TerminalInfo> = {
   // 부산북항
   HBCT: { code: 'HBCT', name: '허치슨터미널(HBCT)', url: 'https://custom.hktl.com', port: '부산북항' },
-  BPTG: { code: 'BPTG', name: 'BPT 감만(BPTG)', url: 'http://www.pctc21.com', port: '부산북항' },
   // 부산신항
   PNC:  { code: 'PNC',  name: '부산신항만(PNC)', url: 'https://svc.pncport.com', port: '부산신항' },
   PNIT: { code: 'PNIT', name: '부산신항국제(PNIT)', url: 'https://www.pnitl.com', port: '부산신항' },
@@ -66,6 +65,7 @@ export const TERMINALS: Record<string, TerminalInfo> = {
   GWCT: { code: 'GWCT', name: '광양서부(GWCT)', url: 'http://www.gwct.co.kr', port: '광양' },
   KITL: { code: 'KITL', name: '허치슨광양(KITL)', url: 'https://info.kitl.com', port: '광양' },
   // 평택
+  PCTC: { code: 'PCTC', name: 'PCTC', url: 'http://www.pctc21.com', port: '평택' },
   PNCT: { code: 'PNCT', name: '평택동방아이포트(PNCT)', url: 'http://www.pnct.co.kr', port: '평택' },
   // 울산
   UNCT: { code: 'UNCT', name: '울산신항(UNCT)', url: 'http://www.unct.co.kr', port: '울산' },

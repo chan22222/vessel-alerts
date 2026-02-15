@@ -24,7 +24,7 @@ function createCrawlers(): BaseCrawler[] {
   return [
     new BnctCrawler(TERMINALS.BNCT),
     new HjncCrawler(TERMINALS.HJNC),
-    new PctcCrawler(TERMINALS.BPTG),
+    new PctcCrawler(TERMINALS.PCTC),
     new UnctCrawler(TERMINALS.UNCT),
     new HpntCrawler(TERMINALS.HPNT),
     new E1ctCrawler(TERMINALS.E1CT),
