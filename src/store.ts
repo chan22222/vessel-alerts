@@ -24,11 +24,30 @@ function toKST(): string {
   return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T')
 }
 
+const FRESHNESS_MS = 5 * 60 * 1000 // 5분 이내 업데이트된 터미널은 skip
+
 /** 성공한 터미널만 갱신, 실패한 터미널은 기존 DB 데이터 유지 */
 export async function mergeRecords(newByTerminal: Map<string, VesselRecord[]>): Promise<number> {
   let totalCount = 0
 
   for (const [trmnCode, records] of newByTerminal) {
+    // 다른 인스턴스가 최근에 이미 업데이트했는지 확인
+    const { data: latest } = await supabase
+      .from('vessel_records')
+      .select('updated_at')
+      .eq('trmn_code', trmnCode)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (latest?.updated_at) {
+      const lastUpdate = new Date(latest.updated_at).getTime()
+      if (Date.now() - lastUpdate < FRESHNESS_MS) {
+        process.stdout.write(`[Supabase] ${trmnCode} skipped (recently updated)\n`)
+        continue
+      }
+    }
+
     // 해당 터미널 기존 데이터 삭제
     const { error: deleteError } = await supabase
       .from('vessel_records')

@@ -9,13 +9,15 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+const CRON_MINUTE = process.env.CRON_MINUTE || '0'
+
 async function start(): Promise<void> {
-  process.stdout.write(`Starting vessel-alerts crawler on port ${PORT}...\n`)
+  process.stdout.write(`Starting vessel-alerts crawler on port ${PORT} (cron at :${CRON_MINUTE})...\n`)
 
   process.stdout.write('Running initial crawl...\n')
   await runAllCrawlers()
 
-  cron.schedule('0 * * * *', async () => {
+  cron.schedule(`${CRON_MINUTE} * * * *`, async () => {
     process.stdout.write('[Cron] Starting scheduled crawl...\n')
     await runAllCrawlers()
   })
