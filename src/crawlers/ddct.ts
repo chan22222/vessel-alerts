@@ -183,8 +183,12 @@ export class DdctCrawler extends BaseCrawler {
       if (!rowData.cdvName && !rowData.plvVslvoy) return
 
       const vesselName = rowData.cdvName || rowData.plvVslvoy
-      const motherVoyage = rowData.plvEvoyin || ''
-      const voyage = rowData.plvEvoyout || rowData.plvEvoyin || ''
+      const evoyIn = rowData.plvEvoyin || ''
+      const evoyOut = rowData.plvEvoyout || ''
+      const motherVoyage = rowData.plvVslvoy || ''
+      const voyage = evoyIn && evoyOut && evoyIn !== evoyOut
+        ? `${evoyIn}/${evoyOut}`
+        : evoyIn || evoyOut || ''
       const arrived = this.formatDatetime(rowData.plvAtb)
       const departed = this.formatDatetime(rowData.plvAtd)
       const closing = this.formatDatetime(rowData.cct)

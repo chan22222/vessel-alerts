@@ -5,6 +5,7 @@ interface BnctItem {
   VSLNAME: string
   OPERATOR: string
   VVD: string
+  VVD_YEAR?: string
   OPERVSLVVDIN: string
   OPERVSLVVDOUT: string
   ETBDATE: string
@@ -79,11 +80,16 @@ export class BnctCrawler extends BaseCrawler {
           ? `${inVoy}/${outVoy}`
           : inVoy || outVoy || ''
 
+        // DDCT/IFPC와 동일하게 모선항차에 연도 포함
+        const motherVoyageWithYear = item.VVD_YEAR
+          ? `${motherVoyage}/${item.VVD_YEAR}`
+          : motherVoyage
+
         return this.makeRecord({
           vessel: item.VSLNAME || '',
           linerCode: item.OPERATOR || '',
           voyage: voyage || motherVoyage,
-          motherVoyage,
+          motherVoyage: motherVoyageWithYear,
           arrivedDatetime: this.formatDatetime(arrived),
           departedDatetime: this.formatDatetime(departed),
           closingDatetime: this.formatDatetime(item.CUTOFFDATE || ''),

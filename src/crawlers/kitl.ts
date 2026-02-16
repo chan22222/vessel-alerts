@@ -13,7 +13,16 @@ export class KitlCrawler extends BaseCrawler {
       })
 
       const html = iconv.decode(Buffer.from(response.data), 'euc-kr')
-      return this.parseTable(html)
+      const records = this.parseTable(html)
+
+      // 중복 제거 (vessel + voyage + arrived 기준)
+      const seen = new Set<string>()
+      return records.filter((r) => {
+        const key = `${r.vessel}|${r.voyage}|${r.arrivedDatetime}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
     } catch {
       return []
     }

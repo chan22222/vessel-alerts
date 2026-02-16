@@ -8,6 +8,7 @@ interface UnctItem {
   vsbVoyEvoyageout?: string
   voyage?: string
   vsbVoy?: string
+  aa?: string
   etb: string
   etd: string
   cct: string
@@ -49,8 +50,10 @@ export class UnctCrawler extends BaseCrawler {
 
         const evoyIn = item.vsbVoyEvoyagein || ''
         const evoyOut = item.vsbVoyEvoyageout || ''
-        const motherVoyage = evoyIn || item.vsbVoy || ''
-        const voyage = evoyOut || evoyIn || ''
+        const motherVoyage = item.aa || item.vsbVoy || ''
+        const voyage = evoyIn && evoyOut && evoyIn !== evoyOut
+          ? `${evoyIn}/${evoyOut}`
+          : evoyIn || evoyOut || ''
 
         return this.makeRecord({
           vessel: item.cdvVslName || '',

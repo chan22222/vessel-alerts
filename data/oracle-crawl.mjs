@@ -349,8 +349,12 @@ async function crawlDdct() {
     if (!cdvName && !plvVslvoy) return;
 
     const vessel = cdvName || plvVslvoy;
-    const motherVoyage = getCol('plvEvoyin') || '';
-    const voyage = getCol('plvEvoyout') || motherVoyage || '';
+    const evoyIn = getCol('plvEvoyin') || '';
+    const evoyOut = getCol('plvEvoyout') || '';
+    const motherVoyage = plvVslvoy || '';
+    const voyage = evoyIn && evoyOut && evoyIn !== evoyOut
+      ? `${evoyIn}/${evoyOut}`
+      : evoyIn || evoyOut || '';
     const arrived = formatDatetime(getCol('plvAtb'));
     const departed = formatDatetime(getCol('plvAtd'));
     const closing = formatDatetime(getCol('cct'));
