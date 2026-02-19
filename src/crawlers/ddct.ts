@@ -24,6 +24,19 @@ export class DdctCrawler extends BaseCrawler {
   private readonly loginUrl = 'https://ds.dongbang.co.kr/com/SsoCtr/login.do'
   private readonly apiUrl = 'https://ds.dongbang.co.kr/nxCtr.do'
 
+  private nexacroHeaders(extra: Record<string, string> = {}): Record<string, string> {
+    return {
+      'Content-Type': 'text/xml',
+      Accept: 'application/xml, text/xml, */*',
+      Origin: this.baseUrl,
+      Referer: `${this.baseUrl}/infoservice/index.html`,
+      'X-Requested-With': 'XMLHttpRequest',
+      'Cache-Control': 'no-cache, no-store',
+      Pragma: 'no-cache',
+      ...extra,
+    }
+  }
+
   async crawl(): Promise<VesselRecord[]> {
     try {
       const sessionCookie = await this.login()
@@ -39,11 +52,7 @@ export class DdctCrawler extends BaseCrawler {
       const requestXml = this.buildScheduleRequestXml(startCompact, endCompact)
 
       const response = await this.http.post<string>(this.apiUrl, requestXml, {
-        headers: {
-          'Content-Type': 'text/xml; charset=UTF-8',
-          Cookie: sessionCookie,
-          Referer: `${this.baseUrl}/infoservice/index.html`,
-        },
+        headers: this.nexacroHeaders({ Cookie: sessionCookie }),
         responseType: 'text',
       })
 
@@ -79,9 +88,7 @@ export class DdctCrawler extends BaseCrawler {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const response = await this.http.post(this.loginUrl, loginXml, {
-          headers: {
-            'Content-Type': 'text/xml; charset=UTF-8',
-          },
+          headers: this.nexacroHeaders(),
           responseType: 'text',
           maxRedirects: 0,
           validateStatus: (status: number) => status < 400,
@@ -128,14 +135,16 @@ export class DdctCrawler extends BaseCrawler {
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<Root xmlns="http://www.nexacroplatform.com/platform/dataset">',
       '<Parameters>',
+      '<Parameter id="styZoncd">1510SP</Parameter>',
       '<Parameter id="method">getList</Parameter>',
       '<Parameter id="sqlId">ist_020Qry.selectList</Parameter>',
-      '<Parameter id="styZoncd">1510SP</Parameter>',
+      '<Parameter id="useIudSql" />',
+      '<Parameter id="dao" />',
       '</Parameters>',
       '<Dataset id="input1">',
       '<ColumnInfo>',
-      '<Column id="istFrdate" type="STRING" size="256"/>',
-      '<Column id="istTodate" type="STRING" size="256"/>',
+      '<Column id="istFrdate" type="STRING" size="256" />',
+      '<Column id="istTodate" type="STRING" size="256" />',
       '</ColumnInfo>',
       '<Rows><Row>',
       `<Col id="istFrdate">${startDate}</Col>`,
