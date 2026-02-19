@@ -58,6 +58,7 @@ export const TERMINALS: Record<string, TerminalInfo> = {
   BCT:  { code: 'BCT',  name: '부산컨테이너(BCT)', url: 'https://info.bct2-4.com', port: '부산신항' },
   BNMT: { code: 'BNMT', name: '부산신항다목적(BNMT)', url: 'http://www.bnmt.co.kr', port: '부산신항' },
   BNCT: { code: 'BNCT', name: 'BNCT', url: 'https://info.bnctkorea.com', port: '부산신항' },
+  DGT:  { code: 'DGT',  name: '동원글로벌(DGT)', url: 'https://info.dgtbusan.com', port: '부산신항' },
   // 인천
   E1CT: { code: 'E1CT', name: 'E1터미널(E1CT)', url: 'http://www.e1ct.co.kr', port: '인천' },
   HJIT: { code: 'HJIT', name: '한진인천(HJIT)', url: 'http://59.17.254.10:9130', port: '인천' },
