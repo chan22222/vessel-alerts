@@ -19,7 +19,6 @@ import { BnmtCrawler } from './bnmt.js'
 import { IfpcCrawler } from './ifpc.js'
 import { PnctCrawler } from './pnct.js'
 import { BctCrawler } from './bct.js'
-import { DdctCrawler } from './ddct.js'
 import { TocCrawler } from './toc.js'
 import { DgtCrawler } from './dgt.js'
 
@@ -42,7 +41,7 @@ function createCrawlers(): BaseCrawler[] {
     new IfpcCrawler(TERMINALS.IFPC),
     new PnctCrawler(TERMINALS.PNCT),
     new BctCrawler(TERMINALS.BCT),
-    new DdctCrawler(TERMINALS.DDCT),
+    // DDCT: Railway에서 IP 차단 → GitHub Actions(actions-crawl.ts)에서 크롤링
     new TocCrawler(TERMINALS.TOC),
     new DgtCrawler(TERMINALS.DGT),
   ]
