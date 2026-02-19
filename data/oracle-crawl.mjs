@@ -1,6 +1,7 @@
 /**
  * Oracle Cloud VM 전용 크롤러 (한국 IP)
  * HBCT, JUCT, PNIT - Railway/GitHub Actions에서 연결 실패하는 터미널
+ * DDCT는 Railway에서 처리
  */
 import { execSync } from 'node:child_process';
 import * as cheerio from 'cheerio';
@@ -249,138 +250,11 @@ async function crawlPnit() {
   return parsePnitTable(getHtml);
 }
 
-// ========== DDCT ==========
-async function crawlDdct() {
-  const baseUrl = 'https://ds.dongbang.co.kr';
-  const loginUrl = `${baseUrl}/com/SsoCtr/login.do`;
-  const apiUrl = `${baseUrl}/nxCtr.do`;
-
-  const loginXml =
-    '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<Root xmlns="http://www.nexacroplatform.com/platform/dataset">' +
-    '<Dataset id="ds_cond"><ColumnInfo>' +
-    '<Column id="id" type="STRING" size="256"/>' +
-    '<Column id="pw" type="STRING" size="256"/>' +
-    '<Column id="locale" type="STRING" size="256"/>' +
-    '<Column id="autoLogin" type="STRING" size="256"/>' +
-    '</ColumnInfo><Rows><Row>' +
-    '<Col id="id">guest</Col>' +
-    '<Col id="pw">guest</Col>' +
-    '<Col id="locale">ko</Col>' +
-    '<Col id="autoLogin">N</Col>' +
-    '</Row></Rows></Dataset></Root>';
-
-  let sessionCookie = '';
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const output = execSync(
-        `curl -sk -i '${loginUrl}' -X POST ` +
-        `-d '${loginXml}' ` +
-        `-H 'Content-Type: text/xml; charset=UTF-8' ` +
-        `-H 'User-Agent: ${UA}' --max-time 30`,
-        { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 }
-      );
-      for (const line of output.split('\n')) {
-        const m = line.match(/^set-cookie:\s*(JSESSIONID=[^;]+)/i);
-        if (m) { sessionCookie = m[1].trim(); break; }
-      }
-      if (sessionCookie) break;
-    } catch (e) {
-      process.stderr.write(`[DDCT] login error (attempt ${attempt + 1}/3): ${e.message}\n`);
-      if (attempt < 2) await sleep(3000 * (attempt + 1));
-    }
-  }
-
-  if (!sessionCookie) {
-    process.stderr.write(`[DDCT] login failed - no session cookie\n`);
-    return [];
-  }
-
-  const now = new Date();
-  const start = new Date(now); start.setDate(start.getDate() - 7);
-  const end = new Date(now); end.setDate(end.getDate() + 30);
-  const fmt = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
-
-  const requestXml =
-    '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<Root xmlns="http://www.nexacroplatform.com/platform/dataset">' +
-    '<Parameters>' +
-    '<Parameter id="method">getList</Parameter>' +
-    '<Parameter id="sqlId">ist_020Qry.selectList</Parameter>' +
-    '<Parameter id="styZoncd">1510SP</Parameter>' +
-    '</Parameters>' +
-    '<Dataset id="input1"><ColumnInfo>' +
-    '<Column id="istFrdate" type="STRING" size="256"/>' +
-    '<Column id="istTodate" type="STRING" size="256"/>' +
-    '</ColumnInfo><Rows><Row>' +
-    `<Col id="istFrdate">${fmt(start)}</Col>` +
-    `<Col id="istTodate">${fmt(end)}</Col>` +
-    '</Row></Rows></Dataset></Root>';
-
-  let xml;
-  try {
-    const buf = execSync(
-      `curl -sk '${apiUrl}' -X POST -d '${requestXml}' ` +
-      `-H 'Content-Type: text/xml; charset=UTF-8' ` +
-      `-H 'Cookie: ${sessionCookie}' ` +
-      `-H 'Referer: ${baseUrl}/infoservice/index.html' ` +
-      `-H 'User-Agent: ${UA}' --max-time 30`,
-      { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 }
-    );
-    xml = buf;
-  } catch (e) {
-    process.stderr.write(`[DDCT] fetch failed: ${e.message}\n`);
-    return [];
-  }
-
-  const cleanXml = xml.replace(/\s+xmlns="[^"]*"/g, '');
-  const $ = cheerio.load(cleanXml, { xml: true });
-  const errorCode = $('Parameter[id="ErrorCode"]').text().trim();
-  if (errorCode !== '0') return [];
-
-  const records = [];
-  $('Dataset[id="output1"] Row').each((_i, row) => {
-    const getCol = (id) => {
-      const col = $(row).find(`Col[id="${id}"]`);
-      return col.text().trim().replace(/&#32;/g, ' ');
-    };
-    const cdvName = getCol('cdvName');
-    const plvVslvoy = getCol('plvVslvoy');
-    if (!cdvName && !plvVslvoy) return;
-
-    const vessel = cdvName || plvVslvoy;
-    const evoyIn = getCol('plvEvoyin') || '';
-    const evoyOut = getCol('plvEvoyout') || '';
-    const motherVoyage = plvVslvoy || '';
-    const voyage = evoyIn && evoyOut && evoyIn !== evoyOut
-      ? `${evoyIn}/${evoyOut}`
-      : evoyIn || evoyOut || '';
-    const arrived = formatDatetime(getCol('plvAtb'));
-    const departed = formatDatetime(getCol('plvAtd'));
-    const closing = formatDatetime(getCol('cct'));
-
-    const atdYn = getCol('atdYn');
-    const atbYn = getCol('atbYn');
-    let status;
-    if (atdYn === 'Y') status = 'DEPARTED';
-    else if (atbYn === 'Y') status = 'ARRIVED';
-    else status = 'PLANNED';
-
-    records.push({
-      vessel, voyage, motherVoyage,
-      linerCode: getCol('cdvOperator') || '-',
-      arrived, departed, closing, status,
-    });
-  });
-  return records;
-}
-
 // ========== MAIN ==========
 const TERMINALS = {
   HBCT: { code: 'HBCT', name: '허치슨터미널(HBCT)', url: 'https://custom.hktl.com', crawl: crawlHbct },
   JUCT: { code: 'JUCT', name: '정일울산(JUCT)', url: 'https://www.juct.co.kr', crawl: crawlJuct },
   PNIT: { code: 'PNIT', name: '부산신항국제(PNIT)', url: 'https://www.pnitl.com', crawl: crawlPnit },
-  DDCT: { code: 'DDCT', name: '동방대산(DDCT)', url: 'https://ds.dongbang.co.kr', crawl: crawlDdct },
 };
 
 async function main() {
