@@ -142,7 +142,7 @@ async function crawlJuct() {
     const arrived = formatDatetime($(cells[1]).text().trim());
     const departed = formatDatetime($(cells[2]).text().trim());
     records.push({
-      vessel, voyage: voyageRaw, motherVoyage: '',
+      vessel, voyage: '', motherVoyage: voyageRaw,
       linerCode: linerCode || '-',
       arrived, departed, closing: '',
       status: determineStatus(arrived, departed),
