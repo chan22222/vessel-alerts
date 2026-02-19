@@ -52,6 +52,7 @@ export class PncCrawler extends BaseCrawler {
       if (cells.length < 17) return
 
       const vessel = $(cells[1]).text().trim()
+      const motherVoyage = $(cells[2]).text().trim()
       const linerCode = $(cells[4]).text().trim()
       const voyage = $(cells[3]).text().trim()
       const arrived = this.formatDatetime($(cells[7]).text().trim())
@@ -65,6 +66,7 @@ export class PncCrawler extends BaseCrawler {
           vessel,
           linerCode,
           voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,

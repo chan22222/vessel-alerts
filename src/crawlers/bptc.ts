@@ -87,7 +87,8 @@ abstract class BptcBaseCrawler extends BaseCrawler {
           const departed = this.formatDatetime(r.departed)
           return this.makeRecord({
             vessel: r.vessel,
-            voyage: r.voyage,
+            voyage: '',
+            motherVoyage: r.voyage,
             linerCode: r.linerCode,
             arrivedDatetime: arrived,
             departedDatetime: departed,

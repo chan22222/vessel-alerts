@@ -52,7 +52,8 @@ export class JuctCrawler extends BaseCrawler {
         this.makeRecord({
           vessel,
           linerCode,
-          voyage: voyageRaw,
+          voyage: '',
+          motherVoyage: voyageRaw,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: '',

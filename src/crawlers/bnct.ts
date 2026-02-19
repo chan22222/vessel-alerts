@@ -88,7 +88,7 @@ export class BnctCrawler extends BaseCrawler {
         return this.makeRecord({
           vessel: item.VSLNAME || '',
           linerCode: item.OPERATOR || '',
-          voyage: voyage || motherVoyage,
+          voyage,
           motherVoyage: motherVoyageWithYear,
           arrivedDatetime: this.formatDatetime(arrived),
           departedDatetime: this.formatDatetime(departed),

@@ -42,11 +42,16 @@ export class PnctCrawler extends BaseCrawler {
         const closing = this.formatPnctDate(row.CUT_OFF_DATE)
         const statusType = this.resolveStatus(row.VSL_STATE, arrived, departed)
 
+        const { motherVoyage, voyage } = this.parseVoyageFields(
+          (row.VVD || '').trim(),
+          (row.OPR_VVD || '').trim(),
+        )
+
         return this.makeRecord({
           vessel: row.VSL_NAME || '',
           linerCode: row.OPERATOR || '',
-          voyage: (row.OPR_VVD || row.VVD || '').trim(),
-          motherVoyage: (row.VVD || '').trim(),
+          voyage,
+          motherVoyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
@@ -140,6 +145,32 @@ export class PnctCrawler extends BaseCrawler {
     const cleaned = raw.replace(/\//g, '-').trim()
     if (cleaned.length >= 16) return cleaned.substring(0, 16)
     return cleaned
+  }
+
+  /**
+   * VVD 필드가 "MOTHER(IN/OUT)" 합쳐진 형태일 때 분리.
+   * 예: "PCSG013(2607E/)"  → mother=PCSG013, voyage=2607E
+   *     "OCWI001(001/001)" → mother=OCWI001, voyage=001
+   *     "PCSG012(/2607W)"  → mother=PCSG012, voyage=2607W
+   *     "TNJP012(26311E/26311W)" → mother=TNJP012, voyage=26311E/26311W
+   */
+  private parseVoyageFields(
+    vvd: string,
+    oprVvd: string,
+  ): { motherVoyage: string; voyage: string } {
+    const match = vvd.match(/^([^(]+)\(([^)]*)\)/)
+    if (match) {
+      const mother = match[1].trim()
+      const carrier = oprVvd || match[2].trim()
+      // IN/OUT 같으면 하나만, 한쪽 비어있으면 슬래시 제거
+      const cleaned = carrier.replace(/^\/|\/$/g, '')
+      const parts = cleaned.split('/')
+      const voyage = parts.length === 2 && parts[0] === parts[1]
+        ? parts[0]
+        : cleaned
+      return { motherVoyage: mother, voyage }
+    }
+    return { motherVoyage: vvd, voyage: oprVvd }
   }
 
   private resolveStatus(

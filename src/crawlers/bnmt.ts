@@ -65,7 +65,8 @@ export class BnmtCrawler extends BaseCrawler {
         this.makeRecord({
           vessel,
           linerCode,
-          voyage,
+          voyage: '',
+          motherVoyage: voyage,
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
