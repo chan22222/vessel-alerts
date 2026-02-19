@@ -150,7 +150,7 @@ export class PnctCrawler extends BaseCrawler {
   /**
    * VVD 필드가 "MOTHER(IN/OUT)" 합쳐진 형태일 때 분리.
    * 예: "PCSG013(2607E/)"  → mother=PCSG013, voyage=2607E
-   *     "OCWI001(001/001)" → mother=OCWI001, voyage=001
+   *     "OCWI001(001/001)" → mother=OCWI001, voyage=001/001
    *     "PCSG012(/2607W)"  → mother=PCSG012, voyage=2607W
    *     "TNJP012(26311E/26311W)" → mother=TNJP012, voyage=26311E/26311W
    */
@@ -161,13 +161,12 @@ export class PnctCrawler extends BaseCrawler {
     const match = vvd.match(/^([^(]+)\(([^)]*)\)/)
     if (match) {
       const mother = match[1].trim()
-      const carrier = oprVvd || match[2].trim()
-      // IN/OUT 같으면 하나만, 한쪽 비어있으면 슬래시 제거
-      const cleaned = carrier.replace(/^\/|\/$/g, '')
-      const parts = cleaned.split('/')
-      const voyage = parts.length === 2 && parts[0] === parts[1]
-        ? parts[0]
-        : cleaned
+      // oprVvd에도 "CODE(IN/OUT)" 형태가 올 수 있으므로 괄호 안 값만 추출
+      let carrier = oprVvd || match[2].trim()
+      const oprMatch = carrier.match(/\(([^)]*)\)/)
+      if (oprMatch) carrier = oprMatch[1].trim()
+      // 앞뒤 빈 슬래시만 제거 (예: "/2607W" → "2607W", "2607E/" → "2607E")
+      const voyage = carrier.replace(/^\/|\/$/g, '')
       return { motherVoyage: mother, voyage }
     }
     return { motherVoyage: vvd, voyage: oprVvd }
