@@ -20,6 +20,7 @@ import { IfpcCrawler } from './ifpc.js'
 import { PnctCrawler } from './pnct.js'
 import { BctCrawler } from './bct.js'
 import { DdctCrawler } from './ddct.js'
+import { TocCrawler } from './toc.js'
 
 function createCrawlers(): BaseCrawler[] {
   return [
@@ -41,6 +42,7 @@ function createCrawlers(): BaseCrawler[] {
     new PnctCrawler(TERMINALS.PNCT),
     new BctCrawler(TERMINALS.BCT),
     new DdctCrawler(TERMINALS.DDCT),
+    new TocCrawler(TERMINALS.TOC),
   ]
 }
 

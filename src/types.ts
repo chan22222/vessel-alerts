@@ -49,6 +49,7 @@ export const TERMINALS: Record<string, TerminalInfo> = {
   HBCT: { code: 'HBCT', name: '허치슨터미널(HBCT)', url: 'https://custom.hktl.com', port: '부산북항' },
   BPTG: { code: 'BPTG', name: 'BPT 감만(BPTG)', url: 'https://info.bptc.co.kr', port: '부산북항' },
   BPTS: { code: 'BPTS', name: 'BPT 신선대(BPTS)', url: 'https://info.bptc.co.kr', port: '부산북항' },
+  TOC:  { code: 'TOC',  name: '인터지스 7부두(TOC)', url: 'https://www.e-iway.com', port: '부산북항' },
   // 부산신항
   PNC:  { code: 'PNC',  name: '부산신항만(PNC)', url: 'https://svc.pncport.com', port: '부산신항' },
   PNIT: { code: 'PNIT', name: '부산신항국제(PNIT)', url: 'https://www.pnitl.com', port: '부산신항' },
