@@ -3,3 +3,6 @@ dist/
 .env
 data/*.key
 data/*.key.pub
+desktop.ini
+nul
+.claude/
