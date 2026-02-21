@@ -42,7 +42,7 @@ function createCrawlers(): BaseCrawler[] {
     new IfpcCrawler(TERMINALS.IFPC),
     new PnctCrawler(TERMINALS.PNCT),
     new BctCrawler(TERMINALS.BCT),
-    new DdctCrawler(TERMINALS.DDCT),
+    // DDCT: IP 차단으로 GitHub Actions에서 크롤링 (actions-crawl.ts)
     new TocCrawler(TERMINALS.TOC),
     new DgtCrawler(TERMINALS.DGT),
   ]
