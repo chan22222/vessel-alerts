@@ -3,6 +3,7 @@ dist/
 .env
 data/*.key
 data/*.key.pub
+data/oracle-ssh.conf
 desktop.ini
 nul
 .claude/

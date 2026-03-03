@@ -64,50 +64,101 @@ function curlPost(url, body, headers = {}) {
 }
 
 // ========== HBCT ==========
+function parseHbctTable(html) {
+  const $ = cheerio.load(html);
+  const records = [];
+  $('tr').each((_i, row) => {
+    const cells = $(row).find('td.font8');
+    if (cells.length < 14) return;
+    const vessel = $(cells[11]).text().trim();
+    if (!vessel) return;
+    const motherVoyage = $(cells[0]).text().trim();
+    const voyage = $(cells[1]).text().trim().replace(/^\/$/, '') || '-';
+    const arrived = formatDatetime($(cells[4]).text().trim());
+    const departed = formatDatetime($(cells[6]).text().trim());
+    const closing = formatDatetime($(cells[7]).text().trim());
+    const className = $(row).attr('class') || '';
+    let status;
+    if (className.includes('end')) status = 'DEPARTED';
+    else if (className.includes('work')) status = 'ARRIVED';
+    else if (className.includes('plan')) status = 'PLANNED';
+    else status = determineStatus(arrived, departed);
+    records.push({
+      vessel, voyage, motherVoyage,
+      linerCode: $(cells[12]).text().trim() || '-',
+      arrived, departed, closing, status,
+    });
+  });
+  return records;
+}
+
 async function crawlHbct() {
   const url = 'https://custom.hktl.com/jsp/T01/sunsuk.jsp';
   const all = [];
-  for (let page = 1; page <= 10; page++) {
-    if (page > 1) await sleep(4000);
-    const body = `langType=K&mainType=T01&subType=01&optType=T&terminal=HBCTLIB&currentPage=${page}&startPage=${page}`;
-    let buf;
-    try {
-      buf = curlPost(url, body, {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Referer': url,
-      });
-    } catch (e) {
-      process.stderr.write(`[HBCT] page ${page} fetch failed, stopping\n`);
-      break;
+
+  // 세션 쿠키 획득
+  let cookieStr = '';
+  try {
+    const headerBuf = execSync(
+      `curl -sk -D - -o /dev/null '${url}' -H 'User-Agent: ${UA}' --max-time 30`,
+      { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 }
+    );
+    const parts = [];
+    for (const line of headerBuf.split('\n')) {
+      const m = line.match(/^set-cookie:\s*([^;]+)/i);
+      if (m) parts.push(m[1].trim());
     }
-    const html = iconv.decode(buf, 'euc-kr');
-    const $ = cheerio.load(html);
-    let pageRecords = 0;
-    $('tr').each((_i, row) => {
-      const cells = $(row).find('td.font8');
-      if (cells.length < 14) return;
-      const vessel = $(cells[11]).text().trim();
-      if (!vessel) return;
-      const arrived = formatDatetime($(cells[4]).text().trim());
-      const departed = formatDatetime($(cells[6]).text().trim());
-      const className = $(row).attr('class') || '';
-      let status;
-      if (className.includes('end')) status = 'DEPARTED';
-      else if (className.includes('work')) status = 'ARRIVED';
-      else if (className.includes('plan')) status = 'PLANNED';
-      else status = determineStatus(arrived, departed);
-      all.push({
-        vessel, voyage: $(cells[1]).text().trim() || '-',
-        motherVoyage: '',
-        linerCode: $(cells[12]).text().trim() || '-',
-        arrived, departed,
-        closing: formatDatetime($(cells[7]).text().trim()), status,
-      });
-      pageRecords++;
-    });
-    if (pageRecords === 0) break;
+    cookieStr = parts.join('; ');
+  } catch (e) {
+    process.stderr.write(`[HBCT] cookie fetch failed\n`);
   }
-  return all;
+
+  // 초기 GET 응답 파싱
+  try {
+    const initBuf = curlGet(url);
+    const initHtml = iconv.decode(initBuf, 'euc-kr');
+    all.push(...parseHbctTable(initHtml));
+  } catch (e) {
+    process.stderr.write(`[HBCT] init GET failed\n`);
+  }
+
+  // 3회 분할 크롤링: 10일 전, 오늘, 10일 후
+  const offsets = [-10, 0, 10];
+  for (const offset of offsets) {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    const year = String(d.getFullYear());
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    for (let page = 1; page <= 10; page++) {
+      if (page > 1) await sleep(2000);
+      const body = `year=${year}&month=${month}&day=${day}&vessel=&ctrno=&langType=K&mainType=T01&subType=01&optType=T&terminal=HBCTLIB&currentPage=${page}&startPage=1`;
+      let buf;
+      try {
+        const cookieHeader = cookieStr ? `-H 'Cookie: ${cookieStr}'` : '';
+        buf = execSync(
+          `curl -sk '${url}' -X POST -d '${body}' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Referer: ${url}' ${cookieHeader} -H 'User-Agent: ${UA}' --max-time 30`,
+          { encoding: 'buffer', maxBuffer: 10 * 1024 * 1024 }
+        );
+      } catch (e) {
+        break;
+      }
+      const html = iconv.decode(buf, 'euc-kr');
+      const records = parseHbctTable(html);
+      if (records.length === 0) break;
+      all.push(...records);
+    }
+  }
+
+  // vessel+출항일시 기준 중복 제거
+  const seen = new Set();
+  return all.filter((r) => {
+    const key = `${r.vessel}::${r.departed}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 // ========== JUCT ==========

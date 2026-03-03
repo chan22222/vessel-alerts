@@ -7,6 +7,8 @@ export class HjitCrawler extends BaseCrawler {
 
   async crawl(): Promise<VesselRecord[]> {
     try {
+      const { startDate } = this.getDateRange()
+
       const params = new URLSearchParams({
         cmd: 'BerthScheduleList',
         menuID: '01',
@@ -14,6 +16,7 @@ export class HjitCrawler extends BaseCrawler {
         pgID: '01',
         nowPage: '1',
         scPeriod: '60',
+        scBaseDate: startDate,
         rowPerPage: '500',
       })
 
