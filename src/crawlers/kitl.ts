@@ -9,7 +9,24 @@ export class KitlCrawler extends BaseCrawler {
 
   async crawl(): Promise<VesselRecord[]> {
     try {
-      const allRecords: VesselRecord[] = []
+      // 세션 쿠키 획득
+      const initResp = await this.http.get(this.url, {
+        responseType: 'arraybuffer',
+        timeout: 30000,
+      })
+      const cookies: string[] = []
+      const setCookie = initResp.headers['set-cookie']
+      if (setCookie) {
+        for (const c of (Array.isArray(setCookie) ? setCookie : [setCookie])) {
+          const m = c.match(/^([^;]+)/)
+          if (m) cookies.push(m[1])
+        }
+      }
+      const cookieStr = cookies.join('; ')
+
+      // 초기 GET 응답도 파싱 (기본 데이터)
+      const initHtml = iconv.decode(Buffer.from(initResp.data), 'euc-kr')
+      const allRecords: VesselRecord[] = [...this.parseTable(initHtml)]
 
       // 3회 분할 크롤링: 10일 전, 오늘, 10일 후
       const offsets = [-10, 0, 10]
@@ -36,20 +53,25 @@ export class KitlCrawler extends BaseCrawler {
             startPage: '1',
           })
 
-          const response = await this.http.post(this.url, params.toString(), {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              Referer: this.url,
-            },
-            responseType: 'arraybuffer',
-            timeout: 60000,
-          })
+          try {
+            const response = await this.http.post(this.url, params.toString(), {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                Referer: this.url,
+                Cookie: cookieStr,
+              },
+              responseType: 'arraybuffer',
+              timeout: 60000,
+            })
 
-          const html = iconv.decode(Buffer.from(response.data), 'euc-kr')
-          const records = this.parseTable(html)
+            const html = iconv.decode(Buffer.from(response.data), 'euc-kr')
+            const records = this.parseTable(html)
 
-          if (records.length === 0) break
-          allRecords.push(...records)
+            if (records.length === 0) break
+            allRecords.push(...records)
+          } catch {
+            break
+          }
         }
       }
 
@@ -61,7 +83,9 @@ export class KitlCrawler extends BaseCrawler {
         seen.add(key)
         return true
       })
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`[KitlCrawler] error: ${msg}\n`)
       return []
     }
   }
