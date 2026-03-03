@@ -79,22 +79,32 @@ export class HjncCrawler extends BaseCrawler {
         return []
       }
 
-      return items.map((item) => {
+      // vessel+voyage 기준 중복 제거
+      const seen = new Set<string>()
+      const records: VesselRecord[] = []
+      for (const item of items) {
+        const vessel = item.VSL_NM || ''
+        const voyage = item.OPR_VOY || item.VOY_NO || ''
+        const key = `${vessel}::${voyage}`
+        if (seen.has(key)) continue
+        seen.add(key)
+
         const arrived = this.formatDatetime(item.ATA || '')
         const departed = this.formatDatetime(item.ATD || '')
         const closing = this.formatDatetime(item.YARD_CLOSE || '')
 
-        return this.makeRecord({
-          vessel: item.VSL_NM || '',
+        records.push(this.makeRecord({
+          vessel,
           linerCode: item.PTNR_CODE || '',
-          voyage: item.OPR_VOY || item.VOY_NO || '',
+          voyage,
           motherVoyage: item.VOY_NO || '',
           arrivedDatetime: arrived,
           departedDatetime: departed,
           closingDatetime: closing,
           statusType: this.resolveStatus(item.STATUS, arrived, departed),
-        })
-      })
+        }))
+      }
+      return records
     } catch {
       return []
     }

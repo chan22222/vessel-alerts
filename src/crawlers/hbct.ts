@@ -42,7 +42,14 @@ export class HbctCrawler extends BaseCrawler {
         allRecords.push(...records)
       }
 
-      return allRecords
+      // vessel+voyage 기준 중복 제거
+      const seen = new Set<string>()
+      return allRecords.filter((r) => {
+        const key = `${r.vessel}::${r.voyage}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       process.stderr.write(`[HbctCrawler] error: ${msg}\n`)
