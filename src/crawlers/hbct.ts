@@ -42,10 +42,10 @@ export class HbctCrawler extends BaseCrawler {
         allRecords.push(...records)
       }
 
-      // vessel+voyage 기준 중복 제거
+      // vessel+출항일시 기준 중복 제거
       const seen = new Set<string>()
       return allRecords.filter((r) => {
-        const key = `${r.vessel}::${r.voyage}`
+        const key = `${r.vessel}::${r.departedDatetime}`
         if (seen.has(key)) return false
         seen.add(key)
         return true
