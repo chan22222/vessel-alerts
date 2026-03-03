@@ -11,9 +11,9 @@ export class SnctCrawler extends BaseCrawler {
     try {
       const now = new Date()
       const start = new Date(now)
-      start.setDate(start.getDate() - 2)
+      start.setDate(start.getDate() - 30)
       const end = new Date(now)
-      end.setDate(end.getDate() + 7)
+      end.setDate(end.getDate() + 30)
 
       const startCompact = this.formatYmdCompact(start)
       const endCompact = this.formatYmdCompact(end)

@@ -113,7 +113,7 @@ async function crawlHbct() {
 // ========== JUCT ==========
 async function crawlJuct() {
   const now = new Date();
-  const start = new Date(now); start.setDate(start.getDate() - 7);
+  const start = new Date(now); start.setDate(start.getDate() - 30);
   const end = new Date(now); end.setDate(end.getDate() + 30);
   const fmt = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
   const fromS = fmt(start) + '00';
@@ -156,7 +156,7 @@ async function crawlJuct() {
 async function crawlPnit() {
   const url = 'https://www.pnitl.com/infoservice/vessel/vslScheduleList.jsp';
   const now = new Date();
-  const start = new Date(now); start.setDate(start.getDate() - 7);
+  const start = new Date(now); start.setDate(start.getDate() - 30);
   const end = new Date(now); end.setDate(end.getDate() + 30);
   const fmtDate = (d) => d.toISOString().slice(0, 10);
 

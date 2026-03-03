@@ -74,7 +74,7 @@ export abstract class BaseCrawler {
   protected getDateRange(): { startDate: string; endDate: string } {
     const now = new Date()
     const start = new Date(now)
-    start.setDate(start.getDate() - 7)
+    start.setDate(start.getDate() - 30)
     const end = new Date(now)
     end.setDate(end.getDate() + 30)
 

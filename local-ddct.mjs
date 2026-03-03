@@ -108,7 +108,7 @@ async function login() {
 
 function getDateRange() {
   const now = new Date()
-  const start = new Date(now); start.setDate(start.getDate() - 7)
+  const start = new Date(now); start.setDate(start.getDate() - 30)
   const end = new Date(now); end.setDate(end.getDate() + 30)
   const fmt = d => d.toISOString().slice(0, 10).replace(/-/g, '')
   return { startDate: fmt(start), endDate: fmt(end) }
