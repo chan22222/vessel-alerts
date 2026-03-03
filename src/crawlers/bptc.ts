@@ -18,7 +18,7 @@ interface BptcRow {
   closing: string
 }
 
-async function fetchAndParse(http: AxiosInstance): Promise<BptcRow[]> {
+async function fetchAndParse(http: AxiosInstance, startDate: string, endDate: string): Promise<BptcRow[]> {
   // 세션 쿠키 획득
   const sessionResp = await http.get(BPTC_REFERER, {
     responseType: 'arraybuffer',
@@ -33,10 +33,24 @@ async function fetchAndParse(http: AxiosInstance): Promise<BptcRow[]> {
     }
   }
 
-  // 데이터 요청
+  // 날짜 파싱 (YYYY-MM-DD → YEAR, MONTH, DAY)
+  const [y1, m1, d1] = startDate.split('-')
+  const [y2, m2, d2] = endDate.split('-')
+
+  // 데이터 요청 (v_time=term으로 직접 날짜 범위 지정)
+  const params = new URLSearchParams({
+    v_time: 'term',
+    YEAR1: y1, MONTH1: m1, DAY1: d1,
+    YEAR2: y2, MONTH2: m2, DAY2: d2,
+    ROCD: 'ALL',
+    v_oper_cd: '',
+    ORDER: 'item1',
+    v_gu: 'A',
+  })
+
   const resp = await http.post(
     BPTC_URL,
-    'v_time=month&ROCD=ALL&v_oper_cd=&ORDER=item1&v_gu=A',
+    params.toString(),
     {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -79,7 +93,8 @@ abstract class BptcBaseCrawler extends BaseCrawler {
 
   async crawl(): Promise<VesselRecord[]> {
     try {
-      const rows = await fetchAndParse(this.http)
+      const { startDate, endDate } = this.getDateRange()
+      const rows = await fetchAndParse(this.http, startDate, endDate)
       return rows
         .filter((r) => r.gubun === this.gubunFilter)
         .map((r) => {
