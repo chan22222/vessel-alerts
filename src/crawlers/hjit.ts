@@ -13,7 +13,7 @@ export class HjitCrawler extends BaseCrawler {
         subMenuID: '1',
         pgID: '01',
         nowPage: '1',
-        scPeriod: '30',
+        scPeriod: '60',
         rowPerPage: '500',
       })
 

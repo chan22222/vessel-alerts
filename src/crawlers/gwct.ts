@@ -3,11 +3,29 @@ import { BaseCrawler } from './base.js'
 import type { VesselRecord } from '../types.js'
 
 export class GwctCrawler extends BaseCrawler {
-  private readonly url = 'http://www.gwct.co.kr/sub/sub_B2'
+  private readonly pageUrl = 'http://www.gwct.co.kr/sub/sub_B2'
+  private readonly searchUrl = 'http://www.gwct.co.kr/sub/sub_B2/search'
 
   async crawl(): Promise<VesselRecord[]> {
     try {
-      const response = await this.http.get<string>(this.url, {
+      const { startDate, endDate } = this.getDateRange()
+      const [y1, m1, d1] = startDate.split('-')
+      const [y2, m2, d2] = endDate.split('-')
+
+      const params = new URLSearchParams({
+        page: '1',
+        pageSize: '500',
+        v_time: 'term',
+        fromY: y1, fromM: String(Number(m1)), fromD: String(Number(d1)),
+        toY: y2, toM: String(Number(m2)), toD: String(Number(d2)),
+        range: 'ETB',
+      })
+
+      const response = await this.http.post<string>(this.searchUrl, params.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Referer: this.pageUrl,
+        },
         responseType: 'text',
       })
 
