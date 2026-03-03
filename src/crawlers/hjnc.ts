@@ -48,7 +48,7 @@ export class HjncCrawler extends BaseCrawler {
       const items: HjncRawItem[] = []
 
       for (let page = 1; page <= maxPages; page++) {
-        const dataUrl = `${this.terminal.url}/esvc/vessel/berthScheduleT/data?startDate=${startDate}&endDate=${endDate}&sort=ATA&amount=${amount}&page=${page}`
+        const dataUrl = `${this.terminal.url}/esvc/vessel/berthScheduleT/data?startDate=${startDate}&endDate=${endDate}&sort=ATA&dateType=&amount=${amount}&page=${page}`
         const dataResp = await jsonHttp.get<HjncResponse>(dataUrl, {
           headers: {
             Cookie: cookies,
